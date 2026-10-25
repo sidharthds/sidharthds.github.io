@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sidharth Dashsharma, Ph.D. scholar at IIT Guwahati: chimeric RNAs, FAM168B, cancer genomics.">
+<style>body{margin:0}</style>
+<title>Sidharth Dashsharma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column with a left rail of section labels; hero carries a drawn chimeric transcript (gene A exons :: gene B exons) as the signature motif. */
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --ink:#16202E; --muted:#5A6576; --line:#D9DEE6;
+  --geneA:#2B4C9B; --geneB:#C77A12; --junction:#16202E; --chip:#E9EEF7;
+  --display:"Spectral", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F141C; --surface:#161D28; --ink:#E7EBF1; --muted:#9AA5B5; --line:#2A3443;
+  --geneA:#86A6F0; --geneB:#E8A64A; --junction:#E7EBF1; --chip:#1E283A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F141C; --surface:#161D28; --ink:#E7EBF1; --muted:#9AA5B5; --line:#2A3443;
+  --geneA:#86A6F0; --geneB:#E8A64A; --junction:#E7EBF1; --chip:#1E283A; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--geneA);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--geneB);outline-offset:3px;border-radius:3px}
+.wrap{max-width:980px;margin:0 auto}
+.mono{font-family:var(--mono);font-size:.9em}
+.g{font-family:var(--mono);font-size:.92em;font-weight:500;white-space:nowrap}
+
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+nav .wrap{display:flex;gap:4px 20px;align-items:center;flex-wrap:wrap;padding-block:10px}
+nav .me{font-family:var(--display);font-weight:700;font-size:1.05rem;margin-right:auto;color:var(--ink);text-decoration:none}
+nav a.l{color:var(--muted);text-decoration:none;font-size:.88rem;letter-spacing:.02em}
+nav a.l:hover{color:var(--ink)}
+
+/* hero */
+header.hero{padding-block:56px 40px;display:grid;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.4rem,6vw,3.8rem);line-height:1.05;margin:6px 0 10px;text-wrap:balance}
+.lede{font-size:1.12rem;max-width:62ch;color:var(--ink);margin:0}
+.lede em{font-family:var(--display);font-style:italic;font-size:1.06em}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:8px 14px;border-radius:6px;font:500 .88rem var(--body);text-decoration:none;cursor:pointer}
+.btn:hover{border-color:var(--geneA)}
+.btn small{font-family:var(--mono);color:var(--muted);font-size:.8rem}
+.btn.todo{border-style:dashed;color:var(--muted)}
+.transcript{width:100%;max-width:100%;height:auto;display:block}
+.transcript text{font-family:var(--mono);font-size:13px;fill:var(--muted)}
+.cap{font-size:.82rem;color:var(--muted);margin-top:6px}
+
+/* sections */
+section{display:grid;grid-template-columns:180px minmax(0,1fr);gap:8px 40px;padding-block:44px;border-top:1px solid var(--line)}
+section > h2{font-family:var(--mono);font-weight:500;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
+section > .c{min-width:0}
+h3{font-family:var(--display);font-weight:600;font-size:1.3rem;line-height:1.3;margin:0 0 6px;text-wrap:balance}
+p{margin:0 0 12px;max-width:68ch}
+
+.themes{display:grid;gap:26px}
+.theme{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}
+.mark{width:44px;height:14px;margin-top:9px;display:flex;border-radius:2px;overflow:hidden}
+.mark i{flex:1;background:var(--geneA)} .mark i+i{background:var(--geneB)}
+.mark.solo i+i{background:var(--geneA);opacity:.45}
+
+.pubs{list-style:none;margin:0;padding:0;display:grid;gap:18px}
+.pubs li{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px}
+.yr{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;padding-top:2px}
+.pt{font-family:var(--display);font-size:1.12rem;line-height:1.4;font-weight:600}
+.au{color:var(--muted);font-size:.9rem}
+.au b{color:var(--ink);font-weight:600}
+.venue{font-size:.9rem}
+.venue i{font-family:var(--display);font-size:1.05em}
+.status{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;
+  padding:1px 8px;border-radius:999px;background:var(--chip);color:var(--geneA);margin-left:6px;vertical-align:2px}
+.status.b{color:var(--geneB)}
+h4{font:600 .8rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:30px 0 14px}
+
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:22px}
+.tl li{display:grid;grid-template-columns:140px minmax(0,1fr);gap:16px}
+.when{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted);padding-top:3px}
+.what b{font-weight:600}
+.what .where{color:var(--muted);font-size:.92rem}
+.what ul{margin:6px 0 0;padding-left:18px;font-size:.95rem}
+
+.skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px 32px}
+.skills h3{font-size:1.05rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{background:var(--chip);border-radius:4px;padding:2px 9px;font-size:.86rem}
+
+.contact{display:grid;gap:14px}
+.addr{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.addr code{font-family:var(--mono);font-size:1rem;background:var(--surface);border:1px solid var(--line);padding:6px 10px;border-radius:6px;user-select:all}
+footer{border-top:1px solid var(--line);padding-block:24px 40px;color:var(--muted);font-size:.82rem}
+
+@media (max-width:720px){
+  section{grid-template-columns:minmax(0,1fr);padding-block:34px}
+  .tl li{grid-template-columns:minmax(0,1fr);gap:2px}
+  .pubs li{grid-template-columns:minmax(0,1fr);gap:2px}
+  header.hero{padding-block:36px 28px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .exon{transform-box:fill-box;transform-origin:center;animation:rise .6s ease-out both}
+  @keyframes rise{from{transform:scaleY(.4)}to{transform:scaleY(1)}}
+}
+</style>
+</head>
+<body>
+
+<nav aria-label="Sections"><div class="wrap">
+  <a class="me" href="#top">S. Dashsharma</a>
+  <a class="l" href="#research">Research</a>
+  <a class="l" href="#publications">Publications</a>
+  <a class="l" href="#talks">Talks</a>
+  <a class="l" href="#experience">Experience</a>
+  <a class="l" href="#skills">Skills</a>
+  <a class="l" href="#contact">Contact</a>
+</div></nav>
+
+<div class="wrap" id="top">
+<header class="hero">
+  <div>
+    <div class="eyebrow">Ph.D. Scholar · IIT Guwahati · School of Health Sciences &amp; Technology</div>
+    <h1>Sidharth Dashsharma</h1>
+    <p class="lede">I study how <em>chimeric RNAs</em> and understudied genes drive cancer and neurodegeneration. My work joins wet-lab functional biology with RNA-seq and TCGA cancer genomics, centred on <span class="g">FAM168B</span> and the fusion transcripts it forms.</p>
+    <div class="links">
+      <a class="btn" href="https://orcid.org/0009-0001-3015-3513" target="_blank" rel="noopener">ORCID <small>0009-0001-3015-3513</small></a>
+      <a class="btn" href="https://www.linkedin.com/in/sidharth-28859993" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn" href="#contact">Email</a>
+      <span class="btn todo" title="Add your Google Scholar profile link">Google Scholar · link coming</span>
+    </div>
+  </div>
+  <figure style="margin:0">
+    <svg class="transcript" viewBox="0 0 900 120" role="img" aria-label="Diagram of the PLEKHB2::FAM168B chimeric transcript: PLEKHB2 exons joined to FAM168B exons at a junction">
+      <line x1="10" y1="60" x2="890" y2="60" stroke="var(--line)" stroke-width="2"/>
+      <g fill="var(--geneA)">
+        <rect class="exon" x="20" y="42" width="80" height="36" rx="3"/>
+        <rect class="exon" x="130" y="42" width="56" height="36" rx="3" style="animation-delay:.05s"/>
+        <rect class="exon" x="214" y="42" width="96" height="36" rx="3" style="animation-delay:.1s"/>
+        <rect class="exon" x="338" y="42" width="70" height="36" rx="3" style="animation-delay:.15s"/>
+      </g>
+      <line x1="450" y1="22" x2="450" y2="98" stroke="var(--junction)" stroke-width="2" stroke-dasharray="4 4"/>
+      <g fill="var(--geneB)">
+        <rect class="exon" x="492" y="42" width="64" height="36" rx="3" style="animation-delay:.25s"/>
+        <rect class="exon" x="584" y="42" width="110" height="36" rx="3" style="animation-delay:.3s"/>
+        <rect class="exon" x="722" y="42" width="52" height="36" rx="3" style="animation-delay:.35s"/>
+        <rect class="exon" x="802" y="42" width="80" height="36" rx="3" style="animation-delay:.4s"/>
+      </g>
+      <text x="20" y="108">PLEKHB2 (5′)</text>
+      <text x="460" y="18">:: junction</text>
+      <text x="882" y="108" text-anchor="end">FAM168B (3′)</text>
+    </svg>
+    <figcaption class="cap">Schematic of a chimeric transcript formed by intergenic trans-splicing, the class of RNA my thesis characterizes.</figcaption>
+  </figure>
+</header>
+
+<section id="research">
+  <h2>Research</h2>
+  <div class="c themes">
+    <div class="theme"><div class="mark"><i></i><i></i></div><div>
+      <h3>Chimeric RNAs and gene fusions in cancer</h3>
+      <p>I identify fusion transcripts in RNA-seq data and test what they do in cells. These include <span class="g">PLEKHB2::FAM168B</span> in breast invasive carcinoma, <span class="g">FAM168B::ANKRD42</span> in prostate adenocarcinoma, and <span class="g">SOX10::FAM168A</span> in lower-grade glioma. All three arise through intergenic trans-splicing at the RNA level rather than genomic rearrangement.</p>
+    </div></div>
+    <div class="theme"><div class="mark solo"><i></i><i></i></div><div>
+      <h3>The dual role of FAM168B</h3>
+      <p>FAM168B (also called MANI) sits at the crossroads of cancer progression and neurite-outgrowth inhibition. I use GFP-tagged overexpression in MCF7, PC3, HeLa, PC12 and SH-SY5Y cells to measure its effect on the cell cycle, apoptosis and signaling, by western blot and flow cytometry.</p>
+    </div></div>
+    <div class="theme"><div class="mark solo"><i></i><i></i></div><div>
+      <h3>Cancer genomics and biomarker discovery</h3>
+      <p>Pan-cancer analysis of TCGA expression, mutation and survival data, with a focus on PRAD and BRCA, carried out and visualized in R. Earlier work covered mass-spectrometry proteomics, metabolomics and miRNA profiling in intervertebral disc degeneration.</p>
+    </div></div>
+  </div>
+</section>
+
+<section id="publications">
+  <h2>Publications</h2>
+  <div class="c">
+    <ul class="pubs">
+      <li><div class="yr">2026</div><div>
+        <div class="pt">Aberrant activation of FAM168B via chimeric PLEKHB2::FAM168B mRNA promotes breast invasive cancer progression</div>
+        <div class="au"><b>Dash Sharma S.</b>, Sensharma S., Kutzner A., Fuhrer E., Pramanik G., Heese K., Pramanik S.</div>
+        <div class="venue"><i>Biochemical and Biophysical Research Communications</i>, 153894</div>
+      </div></li>
+      <li><div class="yr">2026</div><div>
+        <div class="pt">Intergenic trans-splicing–driven formation of a chimeric FAM168B::ANKRD42 transcript in prostate cancer</div>
+        <div class="au"><b>Dash Sharma S.</b>, Sensharma S., Kutzner A., Pramanik G., Heese K., Pramanik S.</div>
+        <div class="venue"><i>3 Biotech</i> 16, 281 · <a href="https://doi.org/10.1007/s13205-026-04920-x" target="_blank" rel="noopener">doi:10.1007/s13205-026-04920-x</a></div>
+      </div></li>
+      <li><div class="yr">—</div><div>
+        <div class="pt">SOX10::FAM168A fusion transcript in lower-grade glioma <span class="status">Under revision</span></div>
+        <div class="au">RNA-seq fusion detection with IGV, linked to TCGA clinical data.</div>
+      </div></li>
+      <li><div class="yr">—</div><div>
+        <div class="pt">FAM168B affects the signaling pathway in cancer cells <span class="status b">In preparation</span></div>
+        <div class="au"><b>Dash Sharma S.</b>, Sensharma S., Kutzner A., Pramanik G., Heese K., Pramanik S.</div>
+      </div></li>
+    </ul>
+    <h4>Book chapters</h4>
+    <ul class="pubs">
+      <li><div class="yr">2027</div><div>
+        <div class="pt">Effect of various environmental factors on processing and storage of nutraceuticals <span class="status">In press</span></div>
+        <div class="au">Paul N., <b>Dash Sharma S.</b>, Sensharma S., Deka R., Bej R.</div>
+        <div class="venue"><i>Elsevier</i></div>
+      </div></li>
+      <li><div class="yr">2026</div><div>
+        <div class="pt">Decoding makhana bioactives: proteomic discovery, physiological relevance, and storage stability</div>
+        <div class="au"><b>Dash Sharma S.</b>, Sensharma S., Debnath I., Palak, Thakur S., Dash C., Chandak M., Pramanik G., Pramanik S.</div>
+        <div class="venue"><i>Elsevier</i></div>
+      </div></li>
+      <li><div class="yr">2025</div><div>
+        <div class="pt">Effect of various environmental factors on processing and storage of nutraceuticals</div>
+        <div class="au">Sensharma S., <b>Dash Sharma S.</b>, Ghosh S., M H. D., Pramanik G., Pramanik S.</div>
+        <div class="venue">In <i>Dietary Supplements and Nutraceuticals</i>, pp. 1–28. Springer Nature Singapore</div>
+      </div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="talks">
+  <h2>Talks &amp; posters</h2>
+  <div class="c">
+    <ul class="tl">
+      <li><div class="when">2026</div><div class="what"><b>Decoding the oncogenic potential of FAM168B chimeric transcripts</b><div class="where">AACR Frontiers in Cancer Science, Singapore</div></div></li>
+      <li><div class="when">Nov–Dec 2025</div><div class="what"><b>Biocomputational aspect of FAM168B::ANKRD42 chimeric mRNA transcript in cancer</b><div class="where">6th ICGA Annual Meeting · Computational Biology Conference 2.0</div></div></li>
+      <li><div class="when">2024–2025</div><div class="what"><b>Exploring the role of FAM168B in neurodegeneration and cancer</b><div class="where">Pan IIT Meeting and Conference on Engineering in Medicine (Dec 2024) · Research and Industrial Conclave, IIT Guwahati (Oct 2025)</div></div></li>
+      <li><div class="when">2023</div><div class="what"><b>Novel biomarkers FAM168s in neurodegenerative diseases and cancers</b><div class="where">Research and Industrial Conclave, IIT Guwahati (conference publication)</div></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="experience">
+  <h2>Experience &amp; education</h2>
+  <div class="c">
+    <ul class="tl">
+      <li><div class="when">2023 – present</div><div class="what"><b>Ph.D. Scholar &amp; Junior Research Fellow</b><div class="where">iBioMedRLab, School of Health Sciences &amp; Technology, IIT Guwahati · coursework CGPA 9.3/10</div>
+        <ul><li>Functional characterization of FAM168B and its chimeric transcripts</li><li>Plasmid design, transfection, monoclonal antibody generation</li></ul></div></li>
+      <li><div class="when">2022 – 2023</div><div class="what"><b>Junior Research Fellow</b><div class="where">Yenepoya University, Mangalore</div>
+        <ul><li>Proteomics, metabolomics and miRNA study of disc degeneration; mass-spectrometry sample-to-analysis workflow; R-based DEG, pathway and GO analysis</li></ul></div></li>
+      <li><div class="when">2022</div><div class="what"><b>Skill Training Programme trainee</b><div class="where">CSIR-Institute of Genomics and Integrative Biology, Delhi</div></div></li>
+      <li><div class="when">2020 – 2022</div><div class="what"><b>M.Sc., Human Genetics</b><div class="where">Central University of Punjab, Bathinda</div>
+        <ul><li>Dissertation: organochlorine exposure and PCOS susceptibility, a GC-MS case-control study</li></ul></div></li>
+      <li><div class="when">2017 – 2020</div><div class="what"><b>B.Sc., Biochemistry &amp; Biotechnology</b> · three gold medals<div class="where">St. Francis De Sales College (RTMN University), Nagpur</div></div></li>
+    </ul>
+  </div>
+</section>
+
+<section id="skills">
+  <h2>Skills</h2>
+  <div class="c">
+    <div class="skills">
+      <div><h3>Cell &amp; molecular biology</h3><div class="chips"><span>Mammalian cell culture</span><span>Transfection</span><span>Flow cytometry / FACS</span><span>MTT assay</span><span>Cell imaging</span><span>Cloning</span><span>PCR / RT-PCR</span><span>Primer design</span></div></div>
+      <div><h3>Protein &amp; analytical</h3><div class="chips"><span>Western blot</span><span>SDS-PAGE</span><span>ELISA</span><span>FPLC</span><span>Affinity chromatography</span><span>Mass-spec proteomics</span><span>GC-MS</span><span>mAb generation</span></div></div>
+      <div><h3>Computational</h3><div class="chips"><span>R</span><span>RNA-seq fusion detection</span><span>IGV</span><span>TCGA analysis</span><span>STRING</span><span>Cytoscape</span><span>Perseus</span><span>Molecular docking</span></div></div>
+    </div>
+    <h4>Honours</h4>
+    <p>GATE 2022 qualified · IIT JAM, GAT-B and CUCET qualified · Three gold medals in B.Sc. · Founding member, Gene Society · Trained in patent analytics and IPR (WIPO)</p>
+  </div>
+</section>
+
+<section id="contact">
+  <h2>Contact</h2>
+  <div class="c contact">
+    <p>I am looking for postdoctoral positions in cancer RNA biology, gene fusions and computational oncology. A full CV and references are available on request.</p>
+    <div class="addr"><code id="email">sidharthdsharma.97@gmail.com</code><button class="btn" id="copy" type="button">Copy email</button></div>
+    <p class="mono" style="color:var(--muted)">IIT Guwahati, Guwahati 781039, Assam, India</p>
+  </div>
+</section>
+
+<footer>© 2026 Sidharth Dashsharma · Last updated October 2026</footer>
+</div>
+
+<script>
+document.getElementById('copy').addEventListener('click', function(){
+  var b=this, t=document.getElementById('email').textContent;
+  function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('email'));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected, press Ctrl+C';}
+  try{navigator.clipboard.writeText(t).then(function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy email'},1800)},sel);}catch(e){sel();}
+});
+</script>
+</body>
+</html>
