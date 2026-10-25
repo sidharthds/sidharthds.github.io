@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}</style>
+<title>Thesis Pre-Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<style>
+/* Layout: a working tool. Tabs across the top; each tab = inputs, one action, then a results report. Same ink/blue/amber family as the portfolio site. */
+:root{
+  --bg:#F6F7F9; --surface:#FFFFFF; --ink:#16202E; --muted:#5A6576; --line:#D9DEE6; --soft:#EEF1F6;
+  --accent:#2B4C9B; --accent-ink:#FFFFFF; --amber:#C77A12;
+  --ok:#1E7A4C; --warn:#A65F00; --bad:#B42318;
+  --m0:#FFE08A; --m1:#BFD4FF; --m2:#C8F0C4; --m3:#F8C9E0; --m4:#D9CCFF; --mx:#E3E6EB;
+  --long:#FFE3B8; --gen:#FFD0CC;
+  --display:"Spectral", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F141C; --surface:#161D28; --ink:#E7EBF1; --muted:#9AA5B5; --line:#2A3443; --soft:#1C2533;
+  --accent:#86A6F0; --accent-ink:#0F141C; --amber:#E8A64A; --ok:#5CC98E; --warn:#F0B35A; --bad:#FF8A80;
+  --m0:#6B5410; --m1:#25407A; --m2:#24552A; --m3:#6A2848; --m4:#45327A; --mx:#2A3240;
+  --long:#5A3F12; --gen:#6A2620; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F141C; --surface:#161D28; --ink:#E7EBF1; --muted:#9AA5B5; --line:#2A3443; --soft:#1C2533;
+  --accent:#86A6F0; --accent-ink:#0F141C; --amber:#E8A64A; --ok:#5CC98E; --warn:#F0B35A; --bad:#FF8A80;
+  --m0:#6B5410; --m1:#25407A; --m2:#24552A; --m3:#6A2848; --m4:#45327A; --mx:#2A3240;
+  --long:#5A3F12; --gen:#6A2620; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 48px}
+h1{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.1;margin:0 0 6px}
+.sub{color:var(--muted);margin:0;max-width:70ch}
+.privacy{display:inline-flex;gap:8px;align-items:center;margin-top:10px;font-size:.85rem;background:var(--soft);border-radius:999px;padding:4px 12px}
+.privacy b{color:var(--ok)}
+.tabs{display:flex;gap:4px;margin:24px 0 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:500 .95rem var(--body);color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.tab:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.panel{padding-top:22px;display:grid;gap:20px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;display:grid;gap:8px;min-width:0}
+.box h2,.box h3{margin:0;font-size:.95rem;font-weight:600}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row .grow{flex:1;min-width:120px}
+label.lbl{font-size:.82rem;color:var(--muted)}
+textarea{width:100%;min-height:170px;resize:vertical;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px;font:14px/1.5 var(--body)}
+input[type=text],select,input[type=number]{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:14px var(--body)}
+input[type=number]{width:72px}
+.file{font-size:.82rem;color:var(--muted)}
+.file input{font-size:.82rem;max-width:100%}
+.wc{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-left:auto}
+.btn{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:7px 12px;font:500 .88rem var(--body);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:9px 18px;font-size:.95rem}
+.btn.link{border:0;background:none;color:var(--accent);padding:4px 6px}
+.opts{display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:.9rem}
+.opts label{display:flex;gap:6px;align-items:center}
+.note{font-size:.84rem;color:var(--muted);margin:0}
+.ex{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+
+/* results */
+.report{display:grid;gap:16px}
+.report[hidden]{display:none}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px;min-width:130px}
+.kpi .v{font-family:var(--display);font-size:1.7rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .k{font-size:.8rem;color:var(--muted)}
+.v.ok{color:var(--ok)} .v.warn{color:var(--warn)} .v.bad{color:var(--bad)}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr) 56px;gap:10px;align-items:center;font-size:.88rem}
+.bar .t{height:12px;background:var(--soft);border-radius:3px;overflow:hidden}
+.bar .t i{display:block;height:100%}
+.bar .n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.bar .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.sw{width:12px;height:12px;border-radius:2px;flex:none}
+.textview{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;max-height:460px;overflow:auto;white-space:pre-wrap;line-height:1.75;font-size:.95rem}
+mark{color:inherit;border-radius:2px;padding:1px 0}
+mark.s0{background:var(--m0)} mark.s1{background:var(--m1)} mark.s2{background:var(--m2)} mark.s3{background:var(--m3)} mark.s4{background:var(--m4)}
+mark.x{background:var(--mx);color:var(--muted)}
+.long{background:var(--long);border-radius:2px}
+mark.gen{background:var(--gen);border-bottom:2px solid var(--bad)}
+.list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.list li{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:.9rem;min-width:0;overflow-wrap:anywhere}
+.list .meta{font-family:var(--mono);font-size:.76rem;color:var(--muted);display:block;margin-bottom:2px}
+.pill{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:1px 8px;border-radius:999px;margin-right:6px;vertical-align:1px}
+.pill.bad{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.pill.info{background:var(--soft);color:var(--muted)}
+h3.sec{font-size:1rem;margin:6px 0 0;display:flex;gap:8px;align-items:baseline}
+h3.sec small{font-family:var(--mono);color:var(--muted);font-weight:400}
+.empty{color:var(--muted);font-size:.9rem;margin:0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.legend span{display:flex;gap:6px;align-items:center}
+.srcs{display:grid;gap:12px}
+footer{margin-top:36px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:560px){.bar{grid-template-columns:minmax(0,1fr) 56px}.bar .t{grid-column:1/-1;order:3}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Thesis Pre-Check</h1>
+  <p class="sub">Check a thesis chapter before the official plagiarism report: overlap with your own papers, citation–reference mismatches and APA 7 formatting, and sentences worth tightening.</p>
+  <div class="privacy"><b>●</b> Runs entirely in your browser. Your text is never uploaded.</div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-sim" aria-selected="true" data-p="p-sim">Similarity</button>
+    <button class="tab" role="tab" id="t-cit" aria-selected="false" data-p="p-cit">Citations &amp; references</button>
+    <button class="tab" role="tab" id="t-wri" aria-selected="false" data-p="p-wri">Writing quality</button>
+  </div>
+
+  <!-- ============ SIMILARITY ============ -->
+  <section class="panel" id="p-sim" role="tabpanel" aria-labelledby="t-sim">
+    <div class="grid2">
+      <div class="box">
+        <div class="row"><h2>Your chapter</h2><span class="ex" id="simA-ex">Example text</span><span class="wc" id="simA-wc"></span></div>
+        <textarea id="simA" aria-label="Your chapter text"></textarea>
+        <div class="row file"><input type="file" id="simA-file" accept=".docx,.pdf,.txt,.md"><span>.docx, .pdf or .txt</span></div>
+      </div>
+      <div class="box">
+        <div class="row"><h2>Compare against</h2><button class="btn link" id="addSrc" type="button">+ Add source</button></div>
+        <div class="srcs" id="srcs"></div>
+      </div>
+    </div>
+    <div class="opts">
+      <label>Smallest match <select id="ngram"><option value="5">5 words</option><option value="6">6 words</option><option value="8" selected>8 words</option><option value="10">10 words</option><option value="12">12 words</option></select></label>
+      <label><input type="checkbox" id="exQuote" checked> Exclude quoted text</label>
+      <label><input type="checkbox" id="exRefs" checked> Exclude reference list</label>
+      <button class="btn primary" id="runSim" type="button">Check similarity</button>
+    </div>
+    <p class="note">Official tools (Turnitin, iThenticate, DrillBit) also compare against millions of papers and websites. This checks only the sources you add, so use it to find reused text in your own papers before the official check.</p>
+    <div class="report" id="simOut"></div>
+  </section>
+
+  <!-- ============ CITATIONS ============ -->
+  <section class="panel" id="p-cit" role="tabpanel" aria-labelledby="t-cit" hidden>
+    <div class="grid2">
+      <div class="box">
+        <div class="row"><h2>Chapter text</h2><span class="ex" id="citA-ex">Example text</span><span class="wc" id="citA-wc"></span></div>
+        <textarea id="citA" aria-label="Chapter text with citations"></textarea>
+        <div class="row file"><input type="file" id="citA-file" accept=".docx,.pdf,.txt,.md"><span>If the file includes a “References” heading, the list is read from it.</span></div>
+      </div>
+      <div class="box">
+        <div class="row"><h2>Reference list</h2><span class="wc" id="citR-wc"></span></div>
+        <textarea id="citR" aria-label="Reference list, one per line"></textarea>
+        <div class="row file"><input type="file" id="citR-file" accept=".docx,.pdf,.txt,.md"><span>One reference per line. Leave empty if it's in the chapter.</span></div>
+      </div>
+    </div>
+    <div class="opts"><button class="btn primary" id="runCit" type="button">Check citations</button></div>
+    <p class="note">Matches in-text citations to references by first author and year, in APA 7 author–date style. Numbered styles such as [1] or Vancouver are not checked.</p>
+    <div class="report" id="citOut"></div>
+  </section>
+
+  <!-- ============ WRITING ============ -->
+  <section class="panel" id="p-wri" role="tabpanel" aria-labelledby="t-wri" hidden>
+    <div class="box">
+      <div class="row"><h2>Text to review</h2><span class="ex" id="wriA-ex">Example text</span><span class="wc" id="wriA-wc"></span></div>
+      <textarea id="wriA" aria-label="Text to review"></textarea>
+      <div class="row file"><input type="file" id="wriA-file" accept=".docx,.pdf,.txt,.md"><span>.docx, .pdf or .txt</span></div>
+    </div>
+    <div class="opts">
+      <label>Long sentence over <input type="number" id="longThr" value="35" min="15" max="80"> words</label>
+      <label><input type="checkbox" id="wriExRefs" checked> Skip reference list</label>
+      <button class="btn primary" id="runWri" type="button">Review writing</button>
+    </div>
+    <p class="note">Flags patterns to look at, not mistakes. Scientific writing legitimately repeats key terms such as gene names.</p>
+    <div class="report" id="wriOut"></div>
+  </section>
+
+  <footer>Thesis Pre-Check · Sidharth Dashsharma · A pre-submission aid. It does not replace the institute's certified plagiarism report.</footer>
+</div>
+
+<script>
+/* ---------------- shared helpers ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TOKRE = /[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
+function tokenize(text){ const out=[]; let m; TOKRE.lastIndex=0; while((m=TOKRE.exec(text))) out.push({w:m[0].toLowerCase(), s:m.index, e:m.index+m[0].length}); return out; }
+const wordCount = t => (t.match(TOKRE)||[]).length;
+function refsStart(text){
+  const re=/^[ \t]*(references|bibliography|literature cited|works cited|reference list)[ \t]*:?[ \t]*$/gim; let m,last=-1;
+  while((m=re.exec(text))) last=m.index; return last;
+}
+async function readFile(file){
+  const name=file.name.toLowerCase();
+  if(name.endsWith('.docx')){
+    if(!window.mammoth) throw new Error('The Word reader did not load. Check your internet connection and reload.');
+    const r=await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()}); return r.value;
+  }
+  if(name.endsWith('.pdf')){
+    if(!window.pdfjsLib) throw new Error('The PDF reader did not load. Check your internet connection and reload.');
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise; let txt='';
+    for(let p=1;p<=pdf.numPages;p++){
+      const c=await (await pdf.getPage(p)).getTextContent(); let lastY=null, line='';
+      for(const it of c.items){ const y=it.transform[5]; if(lastY!==null && Math.abs(y-lastY)>2){ txt+=line+'\n'; line=''; } line+=it.str+(it.hasEOL?'':''); lastY=y; if(it.hasEOL){txt+=line+'\n'; line=''; lastY=null;} }
+      txt+=line+'\n\n';
+    }
+    return txt.replace(/-\n(?=[a-z])/g,'').replace(/[ \t]+\n/g,'\n');
+  }
+  return await file.text();
+}
+function wire(fileId, taId, after){
+  $(fileId).addEventListener('change', async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const ta=$(taId); const old=ta.value; ta.value='Reading '+f.name+'…';
+    try{ ta.value=await readFile(f); if(after) after(f); }
+    catch(err){ ta.value=old; alertBox(taId, err.message||'Could not read this file. Try saving it as .docx or .txt.'); }
+    ta.dispatchEvent(new Event('input'));
+  });
+}
+function alertBox(taId,msg){ const el=$(taId); const p=document.createElement('p'); p.className='note'; p.style.color='var(--bad)'; p.textContent=msg; el.after(p); setTimeout(()=>p.remove(),7000); }
+function liveCount(taId){ const ta=$(taId), wc=$(taId+'-wc'), ex=$(taId+'-ex'); const upd=()=>{ wc.textContent=wordCount(ta.value).toLocaleString()+' words'; }; ta.addEventListener('input',()=>{upd(); if(ex) ex.hidden=true;}); upd(); }
+const pct = x => (x*100).toFixed(1)+'%';
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>{x.setAttribute('aria-selected', x===t?'true':'false'); $(x.dataset.p).hidden = x!==t;});
+}));
+
+/* ---------------- examples ---------------- */
+const EX_CHAPTER = `Chimeric RNAs are transcripts that join exons from two different genes. Unlike classic gene fusions, many chimeric RNAs arise without any rearrangement of the genome, most often through intergenic trans-splicing or cis-splicing between adjacent genes (Rao et al., 2015; Mehta, 2018). It is worth noting that chimeric RNAs play a crucial role in a wide range of cancers, and several have also been detected in normal tissues (Iyer & Bose, 2019).
+
+In our previous work, we showed that the PLEKHB2::FAM168B chimeric transcript promotes breast invasive cancer progression by aberrantly activating FAM168B in cancer cells, which was confirmed using overexpression, cell-cycle and apoptosis assays across several breast cancer cell lines, and which suggested that the chimeric transcript could be a useful biomarker for patient stratification in future clinical studies (Dash Sharma et al., 2026). Furthermore, the FAM168B::ANKRD42 transcript was detected in prostate cancer samples (Dash Sharma et al, 2026). Kumar & Das (2020) reported a similar mechanism in glioma. Furthermore, these findings shed light on how trans-splicing contributes to tumour heterogeneity (Rao, Iyer, & Bose, 2021).
+
+References
+Dash Sharma, S., Sensharma, S., Kutzner, A., Pramanik, G., Heese, K., & Pramanik, S. (2026). Intergenic trans-splicing–driven formation of a chimeric FAM168B::ANKRD42 transcript in prostate cancer. 3 Biotech, 16, 281. https://doi.org/10.1007/s13205-026-04920-x
+Iyer, P., Bose, R. (2019). Chimeric RNAs in normal human tissues. Example Journal of RNA Biology, 12(3), 45–58. doi:10.0000/example.2019
+Mehta, A. (2017). Trans-splicing and its role in cancer. Example Reviews in Oncology, 8, 101–110.
+Rao, K., et al. (2015). Detection of fusion transcripts from RNA-seq data. Example Genomics, 21(4), 300–312. https://doi.org/10.0000/example.2015
+Zaveri, N. (2022). An uncited example reference. Example Journal, 1, 1–9.`;
+const EX_SOURCE = `Abstract. We show that the PLEKHB2::FAM168B chimeric transcript promotes breast invasive cancer progression by aberrantly activating FAM168B in cancer cells. Chimeric RNAs are transcripts that join exons from two different genes, and many arise without any rearrangement of the genome.`;
+
+/* ---------------- SIMILARITY ---------------- */
+const SRC_COLORS=['var(--m0)','var(--m1)','var(--m2)','var(--m3)','var(--m4)'];
+let srcN=0;
+function addSource(name='', text=''){
+  const i=srcN++; const d=document.createElement('div'); d.className='box'; d.style.background='var(--bg)'; d.dataset.src=i;
+  d.innerHTML=`<div class="row"><span class="sw" style="background:${SRC_COLORS[i%5]}"></span>
+    <input type="text" class="grow" id="sn${i}" placeholder="Source name, e.g. BBRC 2026 paper" aria-label="Source name">
+    <button class="btn link" type="button" aria-label="Remove source">Remove</button></div>
+    <textarea id="st${i}" style="min-height:110px" aria-label="Source text"></textarea>
+    <div class="row file"><input type="file" id="sf${i}" accept=".docx,.pdf,.txt,.md"><span class="wc" id="st${i}-wc"></span></div>`;
+  $('srcs').appendChild(d);
+  $('sn'+i).value=name; $('st'+i).value=text;
+  d.querySelector('button').onclick=()=>d.remove();
+  wire('sf'+i,'st'+i,f=>{ if(!$('sn'+i).value) $('sn'+i).value=f.name.replace(/\.[^.]+$/,''); });
+  liveCount('st'+i);
+}
+$('addSrc').onclick=()=>addSource();
+
+function excludedMask(text,toks,exQ,exR){
+  const ranges=[];
+  if(exQ){ const q=/“[^”]{1,2000}”|"[^"\n]{1,2000}"/g; let m; while((m=q.exec(text))) ranges.push([m.index,m.index+m[0].length]); }
+  if(exR){ const r=refsStart(text); if(r>=0) ranges.push([r,text.length]); }
+  return toks.map(t=>ranges.some(([a,b])=>t.s>=a&&t.s<b));
+}
+function similarity(A, sources, n, exQ, exR){
+  const toks=tokenize(A), ex=excludedMask(A,toks,exQ,exR);
+  const idx=[]; toks.forEach((t,i)=>{ if(!ex[i]) idx.push(i); });
+  const k=idx.length;
+  const sets=sources.map(s=>{ const st=tokenize(s.text), sx=excludedMask(s.text,st,false,exR); const w=st.filter((_,i)=>!sx[i]).map(t=>t.w); const set=new Set(); for(let i=0;i+n<=w.length;i++) set.add(w.slice(i,i+n).join(' ')); return set; });
+  const cov=new Int16Array(k).fill(-1), per=sources.map(()=>new Uint8Array(k));
+  for(let i=0;i+n<=k;i++){
+    const key=idx.slice(i,i+n).map(j=>toks[j].w).join(' ');
+    sets.forEach((set,j)=>{ if(set.has(key)) for(let t=i;t<i+n;t++){ per[j][t]=1; if(cov[t]<0) cov[t]=j; } });
+  }
+  const covered=cov.reduce((a,c)=>a+(c>=0),0);
+  const perPct=per.map(a=>k? a.reduce((x,y)=>x+y,0)/k : 0);
+  // passages
+  const passages=[]; let st=-1;
+  for(let t=0;t<=k;t++){ const on=t<k&&cov[t]>=0; if(on&&st<0) st=t; if(!on&&st>=0){ passages.push({a:idx[st],b:idx[t-1],src:cov[st],words:t-st}); st=-1; } }
+  passages.sort((x,y)=>y.words-x.words);
+  // classes per token
+  const cls=new Array(toks.length).fill('');
+  toks.forEach((_,i)=>{ if(ex[i]) cls[i]='x'; });
+  idx.forEach((ti,ci)=>{ if(cov[ci]>=0) cls[ti]='s'+(cov[ci]%5); });
+  return {toks,cls,k,covered,overall:k?covered/k:0,perPct,passages,excluded:toks.length-k};
+}
+function renderMarked(text,toks,cls,titles){
+  let h='',pos=0,cur='';
+  toks.forEach((t,i)=>{
+    const c=cls[i], gap=text.slice(pos,t.s);
+    if(c===cur) h+=esc(gap); else { if(cur) h+='</mark>'; h+=esc(gap); if(c) h+=`<mark class="${c}"${titles&&titles[c]?` title="${esc(titles[c])}"`:''}>`; cur=c; }
+    h+=esc(text.slice(t.s,t.e)); pos=t.e;
+  });
+  if(cur) h+='</mark>'; return h+esc(text.slice(pos));
+}
+function runSim(){
+  const out=$('simOut'), A=$('simA').value;
+  const sources=[...document.querySelectorAll('[data-src]')].map(d=>({name:d.querySelector('input[type=text]').value||'Untitled source', text:d.querySelector('textarea').value, color:SRC_COLORS[d.dataset.src%5], ci:+d.dataset.src})).filter(s=>s.text.trim());
+  if(!A.trim()){ out.innerHTML='<p class="empty">Paste or upload your chapter to check it.</p>'; return; }
+  if(!sources.length){ out.innerHTML='<p class="empty">Add at least one source to compare against, such as your published paper.</p>'; return; }
+  const n=+$('ngram').value, r=similarity(A, sources, n, $('exQuote').checked, $('exRefs').checked);
+  // remap class colors to each source's own swatch
+  r.cls=r.cls.map(c=>c&&c!=='x'? 's'+(sources[+c.slice(1)]?.ci%5) : c);
+  if(r.k<n){ out.innerHTML='<p class="empty">The chapter is shorter than the smallest match length.</p>'; return; }
+  const lvl=r.overall<=0.10?'ok':r.overall<=0.40?'warn':'bad';
+  const lvlTxt=r.overall<=0.10?'Within the UGC 10% limit':r.overall<=0.40?'UGC Level 1 (10–40%): revise':'UGC Level 2+ (over 40%): revise heavily';
+  const titles={x:'Excluded (quote or reference list)'}; sources.forEach(s=>titles['s'+(s.ci%5)]='Matches '+s.name);
+  out.innerHTML=`
+   <div class="kpis">
+     <div class="kpi"><div class="v ${lvl}">${pct(r.overall)}</div><div class="k">Overlap with your sources</div></div>
+     <div class="kpi"><div class="v">${r.covered.toLocaleString()}</div><div class="k">Matching words of ${r.k.toLocaleString()}</div></div>
+     <div class="kpi"><div class="v">${r.passages.length}</div><div class="k">Matching passages</div></div>
+     <div class="kpi"><div class="v" style="font-size:1rem;padding-top:8px">${lvlTxt}</div><div class="k">Against these sources only</div></div>
+   </div>
+   <div class="box"><h3>By source</h3><div class="bars">${sources.map((s,j)=>`<div class="bar"><span class="nm"><span class="sw" style="background:${s.color}"></span>${esc(s.name)}</span><span class="t"><i style="width:${(r.perPct[j]*100).toFixed(1)}%;background:${s.color}"></i></span><span class="n">${pct(r.perPct[j])}</span></div>`).join('')}</div></div>
+   <h3 class="sec">Your chapter, highlighted <small>${r.excluded? r.excluded.toLocaleString()+' words excluded':''}</small></h3>
+   <div class="legend">${sources.map(s=>`<span><span class="sw" style="background:${s.color}"></span>${esc(s.name)}</span>`).join('')}<span><span class="sw" style="background:var(--mx)"></span>Excluded</span></div>
+   <div class="textview">${renderMarked(A,r.toks,r.cls,titles)}</div>
+   <h3 class="sec">Longest matching passages <small>rewrite these first</small></h3>
+   ${r.passages.length? `<ul class="list">${r.passages.slice(0,25).map(p=>`<li><span class="meta">${p.words} words · ${esc(sources[p.src].name)}</span>${esc(A.slice(r.toks[p.a].s,r.toks[p.b].e))}</li>`).join('')}</ul>` : '<p class="empty">No passages of '+n+'+ identical words found.</p>'}`;
+}
+$('runSim').onclick=runSim;
+
+/* ---------------- CITATIONS ---------------- */
+const YR='(?:1[6-9]|20)\\d{2}[a-z]?|n\\.d\\.|in press';
+const normKey=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z]/g,'');
+const firstAuthor=a=>a.split(/\s+et\s+al\.?|\s*&\s*|\s+and\s+|,/i)[0].trim();
+const LEAD=new Set(['in','as','by','the','this','according','while','recently','previously','similarly','following','unlike','like','both','however','moreover','furthermore','study','work','data','for','from','with','and','also','further','thus','then','when','after','before','that','these','those','our','their','its']);
+function parseCitations(text){
+  const cites=[];
+  const par=/\(([^()]{2,500})\)/g; let m;
+  while((m=par.exec(text))){
+    const inner=m[1]; if(!new RegExp(YR,'i').test(inner)) continue;
+    for(let part of inner.split(';')){
+      part=part.trim().replace(/^(e\.g\.,?|i\.e\.,?|see also|see|cf\.|for review,?|reviewed in)\s*/i,'');
+      const yre=new RegExp('('+YR+')','gi'); const years=[]; let y; while((y=yre.exec(part))) years.push({y:y[1],i:y.index});
+      if(!years.length) continue;
+      const author=part.slice(0,years[0].i).replace(/[,\s]+$/,'').trim();
+      if(!author || !/^[\p{Lu}]/u.test(author) || /\d/.test(author) || author.length>140) continue;
+      const issues=[];
+      if(/et al(?!\.)/i.test(author)) issues.push('Write “et al.” with a full stop.');
+      if(/\band\b/.test(author)) issues.push('Use “&” between authors inside parentheses.');
+      if(author.includes('&') && author.split(',').filter(x=>x.trim()).length>=3) issues.push('APA 7: three or more authors are cited as first author + “et al.”');
+      years.forEach(({y})=>cites.push({raw:'('+part+')', author, year:y.toLowerCase(), key:normKey(firstAuthor(author)), issues:[...issues], pos:m.index}));
+    }
+  }
+  const nar=new RegExp("((?:[\\p{Lu}][\\p{L}'’\\-]+\\s+){0,2}[\\p{Lu}][\\p{L}'’\\-]+(?:\\s+et\\s+al\\.?|\\s+(?:and|&)\\s+[\\p{Lu}][\\p{L}'’\\-]+)?)\\s+\\(("+YR+")\\)",'gu');
+  while((m=nar.exec(text))){
+    let words=m[1].split(/\s+/); while(words.length>1 && LEAD.has(words[0].toLowerCase())) words.shift();
+    const author=words.join(' '); if(LEAD.has(author.toLowerCase())) continue;
+    const issues=[];
+    if(author.includes('&')) issues.push('Use “and”, not “&”, in a narrative citation.');
+    if(/et al(?!\.)/i.test(author)) issues.push('Write “et al.” with a full stop.');
+    cites.push({raw:author+' ('+m[2]+')', author, year:m[2].toLowerCase(), key:normKey(firstAuthor(author)), issues, pos:m.index});
+  }
+  return cites.sort((a,b)=>a.pos-b.pos);
+}
+function splitRefs(text){
+  const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean); const refs=[];
+  for(let l of lines){
+    const numbered=/^(\[\d+\]|\d+[.)])\s+/.test(l); l=l.replace(/^(\[\d+\]|\d+[.)])\s+/,'');
+    if(refs.length && (/^[\p{Ll}0-9(]/u.test(l) || /^(https?:|doi)/i.test(l))) refs[refs.length-1].text+=' '+l;
+    else refs.push({text:l, numbered});
+  }
+  return refs.filter(r=>wordCount(r.text)>=3);
+}
+function parseRefs(text){
+  return splitRefs(text).map((r,i)=>{
+    const t=r.text, issues=[];
+    const ym=t.match(new RegExp('\\(('+YR+')(?:,[^)]*)?\\)','i'));
+    const authorPart= ym? t.slice(0,ym.index) : t.split(/\.\s/)[0];
+    const key=normKey(t.split(',')[0]);
+    if(!ym) issues.push(['bad','No year in parentheses after the authors, e.g. (2026).']);
+    if(r.numbered) issues.push(['warn','APA 7 reference lists are not numbered.']);
+    if(/et al/i.test(authorPart)) issues.push(['bad','APA 7 lists up to 20 authors in the reference list; replace “et al.” with the full author names.']);
+    const nAuth=(authorPart.match(/[\p{Lu}][\p{L}'’\- ]*,\s*(?:[\p{Lu}]\.\s*-?\s*)+/gu)||[]).length;
+    if(nAuth>=2 && !authorPart.includes('&')) issues.push(['warn','Put “&” before the last author.']);
+    if(/doi:\s*10\.|dx\.doi\.org/i.test(t)) issues.push(['warn','Write DOIs as https://doi.org/10.xxxx']);
+    if(!/doi\.org|doi:/i.test(t) && /\d+\s*\(\d+\)|,\s*\d+\s*,\s*\d+|\d+[–-]\d+/.test(t)) issues.push(['info','No DOI. Add it if the article has one.']);
+    if(/retrieved from/i.test(t)) issues.push(['info','APA 7 drops “Retrieved from” before most URLs.']);
+    return {i, text:t, key, year: ym? ym[1].toLowerCase():'', issues};
+  });
+}
+function citations(A, Rtext){
+  let body=A, refText=Rtext;
+  if(!refText.trim()){ const r=refsStart(A); if(r>=0){ body=A.slice(0,r); refText=A.slice(r).replace(/^.*\n/,''); } }
+  else { const r=refsStart(A); if(r>=0) body=A.slice(0,r); }
+  const cites=parseCitations(body), refs=parseRefs(refText);
+  const refMap=new Map(); refs.forEach(r=>{ if(!refMap.has(r.key)) refMap.set(r.key,[]); refMap.get(r.key).push(r); });
+  const used=new Set(), missing=[], mismatch=[], uniq=new Map();
+  cites.forEach(c=>{ const id=c.key+'|'+c.year; if(!uniq.has(id)) uniq.set(id,{...c,count:0}); uniq.get(id).count++; });
+  for(const c of uniq.values()){
+    const list=refMap.get(c.key)||[];
+    const hit=list.find(r=>r.year===c.year) || list.find(r=>r.year.replace(/[a-z]$/,'')===c.year.replace(/[a-z]$/,''));
+    if(hit) used.add(hit.i);
+    else if(list.length) mismatch.push({c, years:list.map(r=>r.year||'no year')});
+    else missing.push(c);
+  }
+  const uncited=refs.filter(r=>!used.has(r.i) && !mismatch.some(m=>m.c.key===r.key));
+  const order=[]; for(let i=1;i<refs.length;i++){ if(refs[i].key && refs[i-1].key && refs[i].key<refs[i-1].key) order.push(refs[i]); }
+  const dup=[]; const seen=new Map(); refs.forEach(r=>{ const id=r.key+'|'+r.year+'|'+normKey(r.text).slice(0,60); if(seen.has(id)) dup.push(r); else seen.set(id,1); });
+  const citeIssues=cites.filter(c=>c.issues.length);
+  return {cites, uniq:[...uniq.values()], refs, missing, mismatch, uncited, order, dup, citeIssues, refFound:!!refText.trim()};
+}
+function runCit(){
+  const out=$('citOut'), A=$('citA').value;
+  if(!A.trim()){ out.innerHTML='<p class="empty">Paste or upload a chapter to check its citations.</p>'; return; }
+  const r=citations(A,$('citR').value);
+  if(!r.refFound){ out.innerHTML='<p class="empty">No reference list found. Paste it in the Reference list box, or include a line that says “References” above it in the chapter.</p>'; return; }
+  const refIss=r.refs.filter(x=>x.issues.some(i=>i[0]!=='info')).length;
+  const li=(meta,body)=>`<li><span class="meta">${meta}</span>${body}</li>`;
+  const section=(title,sub,items)=>`<h3 class="sec">${title} <small>${sub}</small></h3>`+(items.length?`<ul class="list">${items.join('')}</ul>`:'<p class="empty">None found.</p>');
+  const v=(n,good)=>n===0?'ok':(good?'warn':'bad');
+  out.innerHTML=`
+   <div class="kpis">
+     <div class="kpi"><div class="v">${r.uniq.length}</div><div class="k">Works cited in text (${r.cites.length} citations)</div></div>
+     <div class="kpi"><div class="v">${r.refs.length}</div><div class="k">References listed</div></div>
+     <div class="kpi"><div class="v ${v(r.missing.length+r.mismatch.length)}">${r.missing.length+r.mismatch.length}</div><div class="k">Cited, not matched in list</div></div>
+     <div class="kpi"><div class="v ${v(r.uncited.length,1)}">${r.uncited.length}</div><div class="k">Listed, never cited</div></div>
+     <div class="kpi"><div class="v ${v(r.citeIssues.length+refIss,1)}">${r.citeIssues.length+refIss}</div><div class="k">APA 7 format issues</div></div>
+   </div>
+   ${section('Cited in text but missing from the list','add these references',r.missing.map(c=>li(`cited ${c.count}×`,`<span class="pill bad">missing</span>${esc(c.raw)}`)))}
+   ${section('Author matches but year differs','check which year is right',r.mismatch.map(m=>li(`cited ${m.c.count}×`,`<span class="pill warn">year</span>${esc(m.c.raw)} → list has ${esc(m.years.join(', '))}`)))}
+   ${section('In the list but never cited','cite or remove',r.uncited.map(x=>li('reference',`<span class="pill warn">uncited</span>${esc(x.text)}`)))}
+   ${section('In-text citation format','APA 7',r.citeIssues.map(c=>li(esc(c.raw),c.issues.map(i=>`<span class="pill warn">fix</span>${esc(i)}`).join('<br>'))))}
+   ${section('Reference list format','APA 7',r.refs.filter(x=>x.issues.length).map(x=>li(esc(x.text.slice(0,140))+(x.text.length>140?'…':''), x.issues.map(([lv,m])=>`<span class="pill ${lv}">${lv==='bad'?'fix':lv==='warn'?'check':'note'}</span>${esc(m)}`).join('<br>'))))}
+   ${r.order.length?section('Alphabetical order','APA 7 sorts by first author surname',r.order.map(x=>li('out of order',esc(x.text.slice(0,140))))):''}
+   ${r.dup.length?section('Possible duplicates','',r.dup.map(x=>li('duplicate',esc(x.text.slice(0,160))))):''}`;
+}
+$('runCit').onclick=runCit;
+
+/* ---------------- WRITING ---------------- */
+const ABBR=/(?:\bet al|\be\.g|\bi\.e|\bFigs?|\bvs|\bapprox|\bca|\bDr|\bProf|\bNo|\bEq|\bRef|\bcf|\bresp|\bInc|\bLtd|\bSt|\bsp|\bspp|\bvol|\bpp?|\bTab|\bSuppl|\b[A-Z])\.$/;
+function sentences(text){
+  const out=[]; const re=/[.!?]+["”’)]?(?=\s+["“(\[]?[\p{Lu}\p{N}])|\n\s*\n|\n(?=[^\n]{0,80}\n)/gu; let start=0,m;
+  while((m=re.exec(text))){
+    const end=m.index+m[0].length; const before=text.slice(Math.max(0,m.index-12),m.index+1);
+    if(m[0][0]==='.' && ABBR.test(before.trimStart())) continue;
+    const s=text.slice(start,end); if(s.trim()) out.push({s:start+(s.length-s.trimStart().length),e:end,text:s.trim()}); start=end;
+  }
+  const tail=text.slice(start); if(tail.trim()) out.push({s:start+(tail.length-tail.trimStart().length),e:text.length,text:tail.trim()});
+  return out.map(x=>({...x,words:wordCount(x.text)})).filter(x=>x.words>=1);
+}
+const STOP=new Set('a an the of in on at to for from by with and or but is are was were be been being this that these those it its as into than then which who whom whose what when where how we our us they their them he she his her not no can could may might will would should has have had do does did also such both each other more most very there here so if about between through during after before over under up out all any some same only'.split(' '));
+const GENERIC=[
+ [/\bit is (?:worth|important to) not(?:e|ing) that\b/gi,'Cut it and state the point directly.'],
+ [/\bplays? (?:a|an) (?:crucial|pivotal|vital|key|critical|important|significant) role\b/gi,'Say what it does, e.g. “drives”, “regulates”, “is required for”.'],
+ [/\ba wide (?:range|variety|array) of\b/gi,'Name the specific items, or say “many”.'],
+ [/\bin order to\b/gi,'“to” is enough.'],
+ [/\bshed(?:s|ding)? (?:new )?light on\b/gi,'Say what was learned: “shows”, “explains”.'],
+ [/\bpav(?:e|es|ed|ing) the way\b/gi,'Say what it enables.'],
+ [/\bin recent years\b/gi,'Give the period or cite the work.'],
+ [/\bdelv(?:e|es|ed|ing) into\b/gi,'“examine”, “study”.'],
+ [/\bunderscor(?:e|es|ed|ing)\b/gi,'“shows”, “supports”.'],
+ [/\b(?:intricate|multifaceted|holistic)\b/gi,'Usually vague; say what is complex.'],
+ [/\b(?:the )?(?:landscape|realm|tapestry) of\b/gi,'Name the field directly.'],
+ [/\b(?:a )?growing body of (?:evidence|literature)\b/gi,'Cite the studies instead.'],
+ [/\bnovel\b/gi,'Use once at most; reviewers discount it.'],
+ [/\b(?:highly|very|extremely|quite) (?:important|significant|crucial)\b/gi,'Drop the intensifier.'],
+ [/\bdue to the fact that\b/gi,'“because”.'],
+ [/\bit (?:can|could) be (?:seen|observed|concluded) that\b/gi,'State the finding directly.'],
+ [/\b(?:leverag(?:e|es|ed|ing)|utiliz(?:e|es|ed|ing)|utilis(?:e|es|ed|ing))\b/gi,'“use”.'],
+ [/\bcomprehensive(?:ly)?\b/gi,'Check it is really comprehensive; otherwise cut.'],
+ [/\bsignificant(?:ly)?\b(?![^.]*\b[pP]\s*[<=])/gi,'In results, keep “significant” for statistics and report the p-value.'],
+ [/\bthe (?:above|aforementioned)\b/gi,'Name the thing again.'],
+ [/\bwith respect to\b|\bin terms of\b/gi,'Often replaceable with “for”, “in” or “of”.'],
+];
+const TRANS=['however','furthermore','moreover','additionally','notably','interestingly','importantly','therefore','thus','hence','overall','similarly','consequently','in addition'];
+function writing(text,thr,exR){
+  let body=text; if(exR){ const r=refsStart(text); if(r>=0) body=text.slice(0,r); }
+  const sents=sentences(body).filter(s=>s.words>=3 || /[.!?]$/.test(s.text));
+  const toks=tokenize(body), words=toks.length;
+  const longS=sents.filter(s=>s.words>thr);
+  // repeated phrases
+  const w=toks.map(t=>t.w); const counts=new Map();
+  for(const n of [5,4,3]) for(let i=0;i+n<=w.length;i++){ const g=w.slice(i,i+n); if(g.every(x=>STOP.has(x)) || STOP.has(g[0])&&STOP.has(g[n-1]) || g.some(x=>/^\d+$/.test(x))) continue; const k=g.join(' '); counts.set(k,(counts.get(k)||0)+1); }
+  let reps=[...counts].filter(([,c])=>c>=3).sort((a,b)=>b[0].split(' ').length-a[0].split(' ').length||b[1]-a[1]);
+  const keep=[]; for(const [k,c] of reps){ if(!keep.some(([K,C])=>K.includes(k)&&C>=c)) keep.push([k,c]); }
+  keep.sort((a,b)=>b[1]-a[1]);
+  // generic
+  const gen=[]; GENERIC.forEach(([re,tip])=>{ re.lastIndex=0; let m; while((m=re.exec(body))) gen.push({s:m.index,e:m.index+m[0].length,txt:m[0],tip}); });
+  gen.sort((a,b)=>a.s-b.s);
+  const genAgg=new Map(); gen.forEach(g=>{ const k=g.txt.toLowerCase(); if(!genAgg.has(k)) genAgg.set(k,{txt:g.txt,tip:g.tip,n:0}); genAgg.get(k).n++; });
+  // starters
+  const st=new Map(); sents.forEach(s=>{ const low=s.text.toLowerCase(); const t=TRANS.find(x=>low.startsWith(x+',')||low.startsWith(x+' ')); if(t) st.set(t,(st.get(t)||0)+1); });
+  const starters=[...st].filter(([,c])=>c>=2).sort((a,b)=>b[1]-a[1]);
+  const avg=sents.length? words/sents.length : 0;
+  return {body,sents,words,longS,reps:keep.slice(0,15),gen,genAgg:[...genAgg.values()].sort((a,b)=>b.n-a.n),starters,avg};
+}
+function renderWriting(r,thr){
+  const body=r.body; let h='',pos=0;
+  const longSet=new Set(r.longS.map(s=>s.s));
+  for(const s of r.sents){
+    h+=esc(body.slice(pos,s.s));
+    let inner='',p=s.s; for(const g of r.gen.filter(g=>g.s>=s.s&&g.e<=s.e)){ if(g.s<p) continue; inner+=esc(body.slice(p,g.s))+`<mark class="gen" title="${esc(g.tip)}">${esc(body.slice(g.s,g.e))}</mark>`; p=g.e; }
+    inner+=esc(body.slice(p,s.e));
+    h+= longSet.has(s.s)? `<span class="long" title="${s.words} words">${inner}</span>` : inner; pos=s.e;
+  }
+  return h+esc(body.slice(pos));
+}
+function runWri(){
+  const out=$('wriOut'), A=$('wriA').value, thr=+$('longThr').value||35;
+  if(!A.trim()){ out.innerHTML='<p class="empty">Paste or upload text to review.</p>'; return; }
+  const r=writing(A,thr,$('wriExRefs').checked);
+  const longPct=r.sents.length? r.longS.length/r.sents.length:0;
+  out.innerHTML=`
+   <div class="kpis">
+     <div class="kpi"><div class="v">${r.words.toLocaleString()}</div><div class="k">Words</div></div>
+     <div class="kpi"><div class="v">${r.sents.length}</div><div class="k">Sentences</div></div>
+     <div class="kpi"><div class="v ${r.avg>28?'warn':'ok'}">${r.avg.toFixed(1)}</div><div class="k">Average words per sentence</div></div>
+     <div class="kpi"><div class="v ${longPct>0.15?'warn':'ok'}">${r.longS.length}</div><div class="k">Sentences over ${thr} words</div></div>
+     <div class="kpi"><div class="v ${r.gen.length?'warn':'ok'}">${r.gen.length}</div><div class="k">Generic phrases</div></div>
+   </div>
+   <div class="legend"><span><span class="sw" style="background:var(--long)"></span>Long sentence</span><span><span class="sw" style="background:var(--gen)"></span>Generic wording (hover for a suggestion)</span></div>
+   <div class="textview">${renderWriting(r,thr)}</div>
+   <h3 class="sec">Long sentences <small>split into two, or cut clauses</small></h3>
+   ${r.longS.length?`<ul class="list">${r.longS.sort((a,b)=>b.words-a.words).slice(0,20).map(s=>`<li><span class="meta">${s.words} words</span>${esc(s.text)}</li>`).join('')}</ul>`:'<p class="empty">None over '+thr+' words.</p>'}
+   <h3 class="sec">Generic wording <small>replace with specific claims</small></h3>
+   ${r.genAgg.length?`<ul class="list">${r.genAgg.map(g=>`<li><span class="meta">${g.n}× · “${esc(g.txt)}”</span>${esc(g.tip)}</li>`).join('')}</ul>`:'<p class="empty">None found.</p>'}
+   <h3 class="sec">Repeated phrases <small>3+ uses; vary or cut if not a key term</small></h3>
+   ${r.reps.length?`<ul class="list">${r.reps.map(([k,c])=>`<li><span class="meta">${c}×</span>${esc(k)}</li>`).join('')}</ul>`:'<p class="empty">No phrase repeated 3 or more times.</p>'}
+   <h3 class="sec">Sentence openers <small>linking words used 2+ times</small></h3>
+   ${r.starters.length?`<ul class="list">${r.starters.map(([k,c])=>`<li><span class="meta">${c}×</span>Sentences starting with “${esc(k[0].toUpperCase()+k.slice(1))}”</li>`).join('')}</ul>`:'<p class="empty">No overused openers.</p>'}`;
+}
+$('runWri').onclick=runWri;
+
+/* ---------------- boot ---------------- */
+$('simA').value=EX_CHAPTER; $('citA').value=EX_CHAPTER; $('wriA').value=EX_CHAPTER;
+addSource('Example: published paper', EX_SOURCE);
+['simA','citA','citR','wriA'].forEach(liveCount);
+wire('simA-file','simA'); wire('citA-file','citA'); wire('citR-file','citR'); wire('wriA-file','wriA');
+runSim(); runCit(); runWri();
+</script>
+</body>
+</html>
